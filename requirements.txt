@@ -2,5 +2,6 @@ dill==0.3.2
 pandas==0.25.2
 streamlit==0.62.0
 spacy==2.3.2
+https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-2.3.1/en_core_web_sm-2.3.1.tar.gz
 torch==1.4.0
 transformers==3.1.0
