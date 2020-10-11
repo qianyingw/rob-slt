@@ -8,11 +8,11 @@ Created on Thu Oct  8 20:25:50 2020
 
 
 import streamlit as st
-import pandas as pd
-import numpy as np
+# import pandas as pd
+# import numpy as np
 import re
-import os
-import glob
+# import os
+# import glob
 
 from pred import pred_prob, pred_prob_bert, extract_sents
 
@@ -31,8 +31,8 @@ PROB_PATH = {
     'fld-i': 'fld/cwi_6.Field',
     
     'arg-w': 'pth/bert_w0.json',
-    'pth-w': 'pth/biobert/bert_w0.pth.tar',
-    'wgt-w': 'pth/biobert',
+    'pth-w': 'pth/bert_w0.pth.tar',
+    # 'wgt-w': 'pth/biobert',
     
     'arg-e': 'pth/awe_8.json',
     'pth-e': 'pth/awe_8.pth.tar',

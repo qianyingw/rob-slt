@@ -104,7 +104,7 @@ def pred_prob(arg_path, field_path, pth_path, doc, device=torch.device('cpu')):
 #%%
 # arg_path = 'pth/bert_w0.json'
 # wgt_path = 'pth/biobert'
-# pth_path = 'pth/biobert/bert_w0.pth.tar'
+# pth_path = 'biobert/bert_w0.pth.tar'
 # device = torch.device('cpu')
 
 # with open('sample/Minwoo A, 2015.txt', 'r', encoding='utf-8', errors='ignore') as fin:
@@ -115,27 +115,24 @@ def pred_prob_bert(arg_path, wgt_path, pth_path, doc, device=torch.device('cpu')
     with open(arg_path) as f:
         args = json.load(f)['args']
     
-    args['wgts_dir'] = wgt_path
     # Load model
-    # Tokenizer & Config & Model
-    if args['net_type'] == "bert_pool_conv":
-        # Tokenizer
-        tokenizer = BertTokenizer.from_pretrained(args['wgts_dir'], do_lower_case=True)  
-        # Config
-        config = BertConfig.from_pretrained(args['wgts_dir'])  
-        config.output_hidden_states = True
-        config.num_labels = args['num_labels']
-        config.unfreeze = args['unfreeze']
-        config.pool_method = args['pool_method']
-        config.pool_layers = args['pool_layers']
-          
-        if args['num_hidden_layers']:  config.num_hidden_layers = args['num_hidden_layers']
-        if args['num_attention_heads']:  config.num_attention_heads = args['num_attention_heads']
-        
-        config.num_filters = args['num_filters']
-        sizes = args['filter_sizes'].split(',')
-        config.filter_sizes = [int(s) for s in sizes]
-        model = BertPoolConv.from_pretrained(args['wgts_dir'], config=config)
+    # Tokenizer
+    tokenizer = BertTokenizer.from_pretrained("dmis-lab/biobert-v1.1")
+    # Config
+    config = BertConfig.from_pretrained("dmis-lab/biobert-v1.1")
+    config.output_hidden_states = True
+    config.num_labels = args['num_labels']
+    config.unfreeze = args['unfreeze']
+    config.pool_method = args['pool_method']
+    config.pool_layers = args['pool_layers']
+      
+    if args['num_hidden_layers']:  config.num_hidden_layers = args['num_hidden_layers']
+    if args['num_attention_heads']:  config.num_attention_heads = args['num_attention_heads']
+    
+    config.num_filters = args['num_filters']
+    sizes = args['filter_sizes'].split(',')
+    config.filter_sizes = [int(s) for s in sizes]
+    model = BertPoolConv.from_pretrained("dmis-lab/biobert-v1.1", config=config)
     
     # Load checkpoint
     checkpoint = torch.load(pth_path, map_location=device)
