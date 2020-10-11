@@ -10,6 +10,8 @@ import json
 import pandas as pd
 import dill
 import re
+import os
+import urllib
 
 import spacy
 nlp = spacy.load("en_core_web_sm")
@@ -24,13 +26,15 @@ import transformers
 from transformers import BertConfig, BertTokenizer
 from model_bert import BertPoolConv
 
-
 #%%
 def pred_prob(arg_path, field_path, pth_path, doc, device=torch.device('cpu')):
     
     # Load args
-    with open(arg_path) as f:
-        args = json.load(f)['args']
+    # with open(arg_path) as f:
+    #     args = json.load(f)['args']   
+    arg_path = os.path.join('https://raw.githubusercontent.com/qianyingw/rob-pome/master/rob-app', arg_path)
+    with urllib.request.urlopen(arg_path) as url:
+        args = json.loads(url.read().decode())['args']
     
     # Load TEXT field
     with open(field_path,"rb") as fin:
