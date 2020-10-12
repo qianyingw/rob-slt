@@ -13,6 +13,7 @@ import re
 import os
 import urllib
 import wget
+import gdown
 
 import spacy
 nlp = spacy.load("en_core_web_sm")
@@ -26,6 +27,7 @@ from model_han import HAN
 import transformers
 from transformers import BertConfig, BertTokenizer
 from model_bert import BertPoolConv
+
 
 #%%
 def pred_prob(arg_path, field_path, pth_path, doc, device=torch.device('cpu')):
@@ -42,7 +44,8 @@ def pred_prob(arg_path, field_path, pth_path, doc, device=torch.device('cpu')):
     field_path = wget.download(field_url)
     with open(field_path,"rb") as fin:
         TEXT = dill.load(fin)   
-     
+    os.remove(field_path)
+    
     unk_idx = TEXT.vocab.stoi[TEXT.unk_token]  # 0
     pad_idx = TEXT.vocab.stoi[TEXT.pad_token]  # 1
 
@@ -78,6 +81,7 @@ def pred_prob(arg_path, field_path, pth_path, doc, device=torch.device('cpu')):
     pth_url = os.path.join('https://github.com/qianyingw/rob-pome/raw/master/rob-app', pth_path)
     pth_path = wget.download(pth_url)
     checkpoint = torch.load(pth_path, map_location=device)
+    os.remove(pth_path)
     state_dict = checkpoint['state_dict']
     model.load_state_dict(state_dict, strict=False)
     model.cpu()
@@ -119,10 +123,12 @@ def pred_prob(arg_path, field_path, pth_path, doc, device=torch.device('cpu')):
 # with open('sample/Minwoo A, 2015.txt', 'r', encoding='utf-8', errors='ignore') as fin:
 #     doc = fin.read() 
 
-def pred_prob_bert(arg_path, wgt_path, pth_path, doc, device=torch.device('cpu')):
-    # Load args
-    with open(arg_path) as f:
-        args = json.load(f)['args']
+def pred_prob_bert(arg_path, pth_path, doc, device=torch.device('cpu')):
+    # Load arg
+    arg_path = os.path.join('https://raw.githubusercontent.com/qianyingw/rob-pome/master/rob-app', arg_path)
+    with urllib.request.urlopen(arg_path) as url:
+        args = json.loads(url.read().decode())['args']
+    # os.remove(arg_path)
     
     # Load model
     # Tokenizer
@@ -144,7 +150,10 @@ def pred_prob_bert(arg_path, wgt_path, pth_path, doc, device=torch.device('cpu')
     model = BertPoolConv.from_pretrained("dmis-lab/biobert-v1.1", config=config)
     
     # Load checkpoint
+    pth_url = 'https://drive.google.com/uc?id=1vztBL9WwUh1vjXOjSfPVgnUTpqdFEcKY'
+    gdown.download(pth_url, pth_path, quiet=False)
     checkpoint = torch.load(pth_path, map_location=device)
+    os.remove(pth_path)
     state_dict = checkpoint['state_dict']
     model.load_state_dict(state_dict, strict=False)
     model.cpu()
@@ -200,12 +209,17 @@ def pred_prob_bert(arg_path, wgt_path, pth_path, doc, device=torch.device('cpu')
 #%%    
 def extract_sents(arg_path, field_path, pth_path, doc, num_sents,  device=torch.device('cpu')):  
     # Load args
-    with open(arg_path) as f:
-        args = json.load(f)['args']
-    
+    arg_path = os.path.join('https://raw.githubusercontent.com/qianyingw/rob-pome/master/rob-app', arg_path)
+    with urllib.request.urlopen(arg_path) as url:
+        args = json.loads(url.read().decode())['args']
+
     # Load TEXT field
-    with open(field_path, "rb") as fin:
+    # Load TEXT field
+    field_url = os.path.join('https://github.com/qianyingw/rob-pome/raw/master/rob-app', field_path)
+    field_path = wget.download(field_url)
+    with open(field_path,"rb") as fin:
         TEXT = dill.load(fin)   
+    os.remove(field_path)
      
     unk_idx = TEXT.vocab.stoi[TEXT.unk_token]  # 0
     pad_idx = TEXT.vocab.stoi[TEXT.pad_token]  # 1
@@ -223,7 +237,10 @@ def extract_sents(arg_path, field_path, pth_path, doc, num_sents,  device=torch.
                 output_attn = True)
     
     # Load checkpoint
+    pth_url = os.path.join('https://github.com/qianyingw/rob-pome/raw/master/rob-app', pth_path)
+    pth_path = wget.download(pth_url)
     checkpoint = torch.load(pth_path, map_location=device)
+    os.remove(pth_path)
     state_dict = checkpoint['state_dict']
     model.load_state_dict(state_dict, strict=False)
     model.cpu()
