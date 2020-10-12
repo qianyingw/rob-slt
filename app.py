@@ -32,7 +32,7 @@ PROB_PATH = {
     'fld-i': 'fld/cwi_6.Field',
     
     'arg-w': 'pth/bert_w0.json',
-    'pth-w': 'pth/bert_w0.pth.tar',
+    'pth-w': 'bert_w0.pth.tar',
     # 'wgt-w': 'pth/biobert',
     
     'arg-e': 'pth/awe_8.json',
@@ -87,7 +87,7 @@ class SinglePredictor():
         pr = pred_prob(self.prob_path['arg-r'], self.prob_path['fld-r'], self.prob_path['pth-r'], text).astype(float)
         pb = pred_prob(self.prob_path['arg-b'], self.prob_path['fld-b'], self.prob_path['pth-b'], text).astype(float)
         pi = pred_prob(self.prob_path['arg-i'], self.prob_path['fld-i'], self.prob_path['pth-i'], text).astype(float)
-        pw = pred_prob_bert(self.prob_path['arg-w'], self.prob_path['wgt-w'], self.prob_path['pth-w'], text).astype(float)
+        pw = pred_prob_bert(self.prob_path['arg-w'], self.prob_path['pth-w'], text).astype(float)
         pe = pred_prob(self.prob_path['arg-e'], self.prob_path['fld-e'], self.prob_path['pth-e'], text).astype(float)     
         
         probs = {"random": pr, "blind": pb, "interest": pi, "welfare": pw, "exclusion": pe}   
@@ -120,11 +120,11 @@ upload_txt = st.file_uploader("Upload one TXT file", type=['txt'])
 if upload_txt is not None:
     
     text = upload_txt.read()
-    with st.spinner('Processing and predicting...'):
-        rober = SinglePredictor(prob_path = PROB_PATH, sent_path = SENT_PATH)
-        rober.process_text(text)
+    rober = SinglePredictor(prob_path = PROB_PATH, sent_path = SENT_PATH)
+    rober.process_text(text)
+    
+    with st.spinner('Predicting...'):
         probs = rober.pred_probs()
-        sents = rober.get_sents(3)
     st.success("""
                ### **Reporting probabilities: ** ###
     """)
@@ -148,6 +148,14 @@ if upload_txt is not None:
     st.write("""
     - Animal Exclusions: 
     """, float("{:.6f}".format(probs['exclusion'])))  
+    
+    with st.spinner('Extracting sentences...'):
+        sents = rober.get_sents(3)
+    st.success("""
+               ### **Potential relevant sentences: ** ###
+    """)
+
+    st.write(sents) 
     
 else:
     # with open('sample/Minwoo A, 2015.txt', 'r', encoding='utf-8', errors='ignore') as fin:
@@ -203,10 +211,9 @@ else:
         "In perspective of clinical significance, inhibition of AT1R is an important pharmacological therapy in the management of hypertension, particularly with long-term benefits in the treatment of patients in post-myocardial infarction period and at risk for ischemic heart disease."
       ]
     } 
-    
 
-st.write("""
-### **Potential relevant sentences: ** ###
-""") 
-st.write(sents) 
+    st.write("""
+    ### **Potential relevant sentences: ** ###
+    """) 
+    st.write(sents) 
 
