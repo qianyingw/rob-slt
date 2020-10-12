@@ -12,6 +12,7 @@ import dill
 import re
 import os
 import urllib
+import wget
 
 import spacy
 nlp = spacy.load("en_core_web_sm")
@@ -37,6 +38,8 @@ def pred_prob(arg_path, field_path, pth_path, doc, device=torch.device('cpu')):
         args = json.loads(url.read().decode())['args']
     
     # Load TEXT field
+    field_url = os.path.join('https://github.com/qianyingw/rob-pome/raw/master/rob-app', field_path)
+    field_path = wget.download(field_url)
     with open(field_path,"rb") as fin:
         TEXT = dill.load(fin)   
      
@@ -72,6 +75,8 @@ def pred_prob(arg_path, field_path, pth_path, doc, device=torch.device('cpu')):
                         output_attn = False)
     
     # Load checkpoint
+    pth_url = os.path.join('https://github.com/qianyingw/rob-pome/raw/master/rob-app', pth_path)
+    pth_path = wget.download(pth_url)
     checkpoint = torch.load(pth_path, map_location=device)
     state_dict = checkpoint['state_dict']
     model.load_state_dict(state_dict, strict=False)
