@@ -8,3 +8,4 @@ torchtext==0.4.0
 transformers==3.1.0
 wget==3.2
 gdown==3.12.2
+pyxpdf==0.2.3
