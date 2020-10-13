@@ -11,13 +11,17 @@ import streamlit as st
 # import pandas as pd
 # import numpy as np
 import re
+import io
 # import os
 # import glob
 
 from pred import pred_prob, pred_prob_bert, extract_sents
-
+from pyxpdf import Document
 
 #%%
+p_ref = re.compile(r"(.*Reference\s{0,}\n)|(.*References\s{0,}\n)|(.*Reference list\s{0,}\n)|(.*REFERENCE\s{0,}\n)|(.*REFERENCES\s{0,}\n)|(.*REFERENCE LIST\s{0,}\n)", 
+                   flags=re.DOTALL)
+
 PROB_PATH = {
     'arg-r': 'pth/awr_13.json',
     'pth-r': 'pth/awr_13.pth.tar',
@@ -112,21 +116,31 @@ class SinglePredictor():
 #%% App
 st.write("""
 # Risk of bias reporting for preclinical text
-This app can predcit the probabilities of risk of bias reporting for text from a preclinical paper. For batch processing, please check the [repository](https://github.com/qianyingw/rob-pome).
+This app can predcit the probabilities of risk of bias reporting for text from a preclinical paper. For batch processing and relevant sentences extraction, please check the [repository](https://github.com/qianyingw/rob-pome).
 """)
 
+upload_file = st.file_uploader("Upload your .txt or .pdf file", type=['txt', 'pdf'])
 
-upload_txt = st.file_uploader("Upload one TXT file", type=['txt'])
-if upload_txt is not None:
-    
-    text = upload_txt.read()
+if upload_file:
+
+    if isinstance(upload_file, io.StringIO):
+        text = upload_file.read()  
+    if isinstance(upload_file, io.BytesIO):
+        doc = Document(upload_file)
+        text = doc.text()
+        # Remove texts before the first occurence of 'Introduction' or 'INTRODUCTION'
+        text = re.sub(r".*?(Introduction|INTRODUCTION)\s{0,}\n{1,}", " ", text, count=1, flags=re.DOTALL)    
+        # Remove reference after the last occurence 
+        s = re.search(p_ref, text)
+        if s: text = s[0]  
+   
     rober = SinglePredictor(prob_path = PROB_PATH, sent_path = SENT_PATH)
     rober.process_text(text)
     
     with st.spinner('Predicting...'):
         probs = rober.pred_probs()
     st.success("""
-               ### **Reporting probabilities: ** ###
+                ### **Reporting probabilities: ** ###
     """)
     
     st.write("""
@@ -149,13 +163,13 @@ if upload_txt is not None:
     - Animal Exclusions: 
     """, float("{:.6f}".format(probs['exclusion'])))  
     
-    with st.spinner('Extracting sentences...'):
-        sents = rober.get_sents(3)
-    st.success("""
-               ### **Potential relevant sentences: ** ###
-    """)
+    # with st.spinner('Extracting sentences...'):
+    #     sents = rober.get_sents(3)
+    # st.success("""
+    #            ### **Potential relevant sentences: ** ###
+    # """)
 
-    st.write(sents) 
+    # st.write(sents) 
     
 else:
     # with open('sample/Minwoo A, 2015.txt', 'r', encoding='utf-8', errors='ignore') as fin:
@@ -217,3 +231,4 @@ else:
     """) 
     st.write(sents) 
 
+print('Finish')
