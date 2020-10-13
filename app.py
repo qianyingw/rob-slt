@@ -116,7 +116,7 @@ class SinglePredictor():
 #%% App
 st.write("""
 # Risk of bias reporting for preclinical text
-This app can predcit the probabilities of risk of bias reporting for text from a preclinical paper. For batch processing and relevant sentences extraction, please check the [repository](https://github.com/qianyingw/rob-pome).
+This app can predict the probabilities of risk of bias reporting for text from a preclinical paper. For batch processing and relevant sentences extraction, please check the [repository](https://github.com/qianyingw/rob-pome).
 """)
 
 upload_file = st.file_uploader("Upload your .txt or .pdf file", type=['txt', 'pdf'])
